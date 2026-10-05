@@ -248,17 +248,17 @@ def carrier_page():
     header(p, "Carrier Performance")
     p.add("periodSlicer", 1560, 12, 328, 130, period_slicer(), filters=exclude_forecast(p.name))
     carrier = col("Carriers", "Carrier")
-    p.add("onTimeByCarrier", M, 156, 920, 340, column_chart(carrier, "On-Time %", "On-Time Color", "On-Time Target", "Target 95%"),
+    p.add("onTimeByCarrier", M, 156, 920, 320, column_chart(carrier, "On-Time %", "On-Time Color", "On-Time Target", "Target 95%"),
           title="On-time % by carrier")
-    p.add("fillByCarrier", 968, 156, 920, 340, column_chart(carrier, "Trailer Fill %", "Fill Color", "Trailer Fill Target", "Target 75%"),
+    p.add("fillByCarrier", 968, 156, 920, 320, column_chart(carrier, "Trailer Fill %", "Fill Color", "Trailer Fill Target", "Target 75%"),
           title="Trailer fill % by carrier")
-    p.add("carrierTable", M, 512, W - 2 * M, 240, table(
+    p.add("carrierTable", M, 492, W - 2 * M, 280, table(
         [carrier, meas("Avg Weekly Pallets"), meas("Trailers"), meas("On-Time %"), meas("On-Time Status"),
          meas("Trailer Fill %"), meas("Cost per Pallet"), meas("Total Cost")],
         font_colors={f"{KM}.On-Time %": "On-Time Color", f"{KM}.On-Time Status": "On-Time Color",
                      f"{KM}.Trailer Fill %": "Fill Color"},
         sort=(carrier, "Ascending")), title="Carrier scorecard")
-    p.add("onTimeTrendByCarrier", M, 768, W - 2 * M, 288, line_chart(["On-Time %"], None, series=carrier),
+    p.add("onTimeTrendByCarrier", M, 788, W - 2 * M, 268, line_chart(["On-Time %"], None, series=carrier),
           title="On-time % by week and carrier")
     return p
 
@@ -279,12 +279,13 @@ def forecast_page():
               "query": {"queryState": {"Rows": {"projections": [proj(col("Calendar", "Week Ending"))]},
                                        "Columns": {"projections": [proj(col("Pool Points", "Pool Point ID"))]},
                                        "Values": {"projections": [proj(meas("Trailers Forecast"))]}}},
-              "objects": {"values": [{"properties": {"backColor": color_by_measure("Capacity Color")},
+              "objects": {"values": [{"properties": {"fontSize": lit("10D")}},
+                                     {"properties": {"backColor": color_by_measure("Capacity Color")},
                                       "selector": {**ALL_ROWS, "metadata": f"{KM}.Trailers Forecast"}}],
                           "subTotals": [{"properties": {"rowSubtotals": lit("false"), "columnSubtotals": lit("false")}}],
-                          "grid": [{"properties": {"textSize": lit("12D")}}],
-                          "columnHeaders": [{"properties": {"fontSize": lit("12D"), "bold": lit("true")}}],
-                          "rowHeaders": [{"properties": {"fontSize": lit("12D")}}]},
+                          "grid": [{"properties": {"textSize": lit("10D")}}],
+                          "columnHeaders": [{"properties": {"fontSize": lit("10D"), "bold": lit("true")}}],
+                          "rowHeaders": [{"properties": {"fontSize": lit("10D")}}]},
               "drillFilterOtherVisuals": True}
     p.add("capacityHeatmap", 1158, 260, 730, 796, matrix,
           title="Trailers needed per lane - red over contract, amber at risk in high case, green covered")

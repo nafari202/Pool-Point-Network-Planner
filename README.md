@@ -1,6 +1,6 @@
 # Pool Point Network Planner
 **Author:** Nana Afari  
-**Tools:** Python (pandas, statsmodels, matplotlib, openpyxl) · Excel (XLOOKUP, SUMIFS, PivotTables, conditional formatting, data validation)  
+**Tools:** Python (pandas, statsmodels, matplotlib, openpyxl) · Excel (XLOOKUP, SUMIFS, PivotTables, conditional formatting, data validation) · Power BI (Power Query, DAX, data modeling)  
 **Data:** U.S. Census clothing store sales (real) driving a simulated retail outbound network
 
 ---
@@ -13,6 +13,7 @@ Multi-store retailers ship from a distribution center (DC) to regional **pool po
 3. **Plan the peak delivery week** store by store under pallet max limits, then apply real-world change requests: a pool point closure, a store cancellation, a pallet max change, a new store opening, and a carrier change.
 4. **Report KPIs** (on-time delivery, trailer fill, cost per pallet, backlog) against targets.
 5. **Package it in Excel** as a formula-driven operations report with a dashboard, store visibility report, backlog report, and PivotTables.
+6. **Build a Power BI report** on the same data: a semantic model whose DAX measures match the Python scorecards exactly, and four report pages ([see below](#power-bi-report)).
 
 The network has one DC, 8 pool points, 4 linehaul carriers, 136 stores (two of them opening this fall), and 208 weeks of history.
 
@@ -39,6 +40,32 @@ The network has one DC, 8 pool points, 4 linehaul carriers, 136 stores (two of t
 - Change requests add 114 more backlog pallets. The Worcester storm closure alone adds 89.
 - The peak plan adds a delivery day and raises pallet max 25% for stores with backlog. It **clears 98% of backlog at a flat cost per pallet** ($74.55 vs. $74.25), and trailer fill rises from 79.7% to 85.9%.
 - Moving Syracuse to Carrier D costs $36 more per trailer, for a carrier with 95.1% on-time versus 92.2%.
+
+---
+
+## Power BI Report
+`powerbi/Pool-Point-Network.pbip` is a Power BI Desktop project built on the pipeline's CSVs.
+
+| Network Scorecard | Carrier Performance |
+|---|---|
+| ![Network Scorecard page](images/powerbi_1_network_scorecard.png) | ![Carrier Performance page](images/powerbi_2_carrier_performance.png) |
+| **Forecast & Capacity** | **Peak Week Plan** |
+| ![Forecast and Capacity page](images/powerbi_3_forecast_capacity.png) | ![Peak Week Plan page](images/powerbi_4_peak_week_plan.png) |
+
+| Page | What it shows |
+|---|---|
+| Network Scorecard | KPI cards and a pool point scorecard for the selected period (trailing 52 weeks by default). Misses against target are red. Weekly on-time and trailer fill trends are drawn against target lines. |
+| Carrier Performance | On-time and trailer fill by carrier against target, a carrier scorecard, and weekly on-time by carrier. |
+| Forecast & Capacity | The last 52 weeks of actuals running into the 26-week forecast and its high case, and a lane-by-week heatmap of trailers needed versus contract. |
+| Peak Week Plan | Backlog and total cost for the three peak-week scenarios, the five change requests and their impact, and the store-level plan. |
+
+**Semantic model**
+- **12 tables** loaded with Power Query from the project CSVs through one folder parameter. Relationships run Carriers → Pool Points → Stores, so a carrier filter reaches every table. A DAX date table splits weeks into earlier history, the last 52 weeks, and forecast.
+- **57 DAX measures**, including on-time %, trailer fill %, cost per pallet, cost index vs. network, year-over-year growth (shifted 364 days so Saturday week-endings line up), average backlog, forecast and capacity measures, and status flags against each target.
+- **Reconciled to the Python output.** Every scorecard value matches `outputs/kpi_scorecard.csv` (8 pool points × 15 KPIs) and `outputs/carrier_scorecard.csv` (4 carriers × 8 KPIs).
+- **Measure-driven formatting.** Status colors and the capacity heatmap use the same rules as `kpis.py` and `capacity.py`.
+- **Data gap handled in Power Query.** The new store from change request CHG-004 exists only in the change log, so the Stores query appends it.
+- **Report as code.** `scripts/build_powerbi_pages.py` generates the four pages as PBIR files and validates them with Microsoft's `powerbi-report-author` CLI.
 
 ---
 
@@ -96,10 +123,12 @@ src/
   kpis.py            Pool point and carrier scorecards
   charts.py          README and notebook charts
   report_excel.py    Excel operations report
-scripts/excel_finalize.ps1   Adds PivotTables and caches formula values (Windows and Excel)
+scripts/excel_finalize.ps1       Adds PivotTables and caches formula values (Windows and Excel)
+scripts/build_powerbi_pages.py   Generates the Power BI report pages from code
+powerbi/           Power BI project: semantic model (TMDL) and report pages (PBIR)
 data/              Census series, simulated network, and history (CSV)
 outputs/           Forecasts, scorecards, scenarios, carrier notes, Excel report
-images/            Charts
+images/            Charts and Power BI page screenshots
 ```
 
 ---
@@ -112,6 +141,8 @@ pip install -r requirements.txt
 python run_pipeline.py          # add --refresh to re-download the Census series
 ```
 On Windows with Excel installed, the run finishes by adding the PivotTables and caching formula values. Elsewhere, formulas calculate when the workbook is opened. The simulation uses a fixed seed, so results are reproducible.
+
+**Power BI:** open `powerbi/Pool-Point-Network.pbip` in Power BI Desktop (free, Windows). The data cache isn't stored in the repo, so set the `ProjectFolder` parameter to your copy of the repo (Home → Transform data → Edit parameters), then click Refresh. `python scripts/build_powerbi_pages.py` rebuilds the report pages from code.
 
 ---
 

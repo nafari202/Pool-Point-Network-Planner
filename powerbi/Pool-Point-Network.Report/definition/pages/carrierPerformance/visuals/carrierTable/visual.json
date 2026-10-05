@@ -3,9 +3,9 @@
   "name": "carrierTable",
   "position": {
     "x": 32,
-    "y": 512,
+    "y": 492,
     "z": 5000,
-    "height": 240,
+    "height": 280,
     "width": 1856,
     "tabOrder": 5000
   },
