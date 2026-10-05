@@ -1,0 +1,349 @@
+/// Home table for the model's measures.
+table 'Key Measures'
+	lineageTag: 2d8c93e1-52bc-42c2-8991-4b40f928db92
+
+	/// On-time delivery target (config.TARGETS in the Python pipeline).
+	measure 'On-Time Target' = 0.95
+		formatString: 0.0%
+		displayFolder: Targets
+		lineageTag: f889b3ad-8675-4d8c-b160-a5924466814c
+
+	/// Trailer fill target (config.TARGETS).
+	measure 'Trailer Fill Target' = 0.75
+		formatString: 0.0%
+		displayFolder: Targets
+		lineageTag: d4526150-0950-4360-a580-2ce2ad75899a
+
+	/// A pool point is flagged High cost when its cost per pallet exceeds the network by more than this multiple.
+	measure 'Cost Alert Index' = 1.10
+		formatString: 0.00
+		displayFolder: Targets
+		lineageTag: 7c751688-79ab-431f-b694-a5de0f4d3d3a
+
+	/// 53' dry van, single-stacked standard pallets (config.PALLETS_PER_TRAILER).
+	measure 'Pallets per Trailer' = 26
+		formatString: #,0
+		displayFolder: Targets
+		lineageTag: 7cd116bb-c893-49e6-8571-f81b4bb166f9
+
+	measure 'Pallets Shipped' = SUM ( 'Pool Point Weekly'[Pallets Shipped] )
+		formatString: #,0
+		displayFolder: Volume
+		lineageTag: 828f947f-c60b-4882-911c-c7b0c37a43ba
+
+	measure 'Demand Pallets' = SUM ( 'Pool Point Weekly'[Demand Pallets] )
+		formatString: #,0
+		displayFolder: Volume
+		lineageTag: cbd92578-0e88-413b-a150-9bbefa4151ff
+
+	/// Number of actual weeks in the current selection.
+	measure Weeks = DISTINCTCOUNT ( 'Pool Point Weekly'[Week Ending] )
+		formatString: #,0
+		displayFolder: Volume
+		lineageTag: 3609abce-6e03-40cb-aba1-b55811c6f51b
+
+	measure 'Avg Weekly Pallets' = DIVIDE ( [Pallets Shipped], [Weeks] )
+		formatString: #,0
+		displayFolder: Volume
+		lineageTag: 3bc7dba3-bd3a-4109-8ffe-279d9f6af016
+
+	/// Pallets shipped in the same weeks one year earlier. Shifts 364 days so Saturday week-endings line up.
+	measure 'Pallets Shipped PY' = CALCULATE ( [Pallets Shipped], DATEADD ( 'Calendar'[Date], -364, DAY ) )
+		formatString: #,0
+		displayFolder: Volume
+		lineageTag: a2bd6793-a363-4d00-80c2-44b72c776e7c
+
+	measure 'YoY Volume Growth' = DIVIDE ( [Pallets Shipped] - [Pallets Shipped PY], [Pallets Shipped PY] )
+		formatString: 0.0%
+		displayFolder: Volume
+		lineageTag: 0a8e6a19-44a5-4f33-bfad-6b2071cc18d0
+
+	measure Stops = SUM ( 'Pool Point Weekly'[Stops] )
+		formatString: #,0
+		displayFolder: Service
+		lineageTag: d7b2504e-f64c-4f05-ab98-4bbd8549c2bd
+
+	measure 'On-Time Stops' = SUM ( 'Pool Point Weekly'[On-Time Stops] )
+		formatString: #,0
+		displayFolder: Service
+		lineageTag: 180b7f00-8cb1-4b6a-9e7b-da98b9d9eddf
+
+	measure 'On-Time %' = DIVIDE ( [On-Time Stops], [Stops] )
+		formatString: 0.0%
+		displayFolder: Service
+		lineageTag: 71a25b78-922f-423c-a3e2-63e790946895
+
+	measure 'On-Time Status' =
+			IF (
+			    NOT ISBLANK ( [On-Time %] ),
+			    IF ( [On-Time %] >= [On-Time Target], "Meets", "Below target" )
+			)
+		displayFolder: Service
+		lineageTag: a5930285-e83f-4cd5-87de-eb3885ffb849
+
+	/// Pallets carried over at week end. Meaningful per week; across a date range use Avg Weekly Backlog.
+	measure 'Backlog Pallets' = SUM ( 'Pool Point Weekly'[Backlog Pallets] )
+		formatString: #,0
+		displayFolder: Service
+		lineageTag: 55ade4f6-8173-451c-bb6d-c6a65fcf091f
+
+	/// Average week-end backlog across the selected weeks.
+	measure 'Avg Weekly Backlog' =
+			AVERAGEX (
+			    VALUES ( 'Pool Point Weekly'[Week Ending] ),
+			    CALCULATE ( SUM ( 'Pool Point Weekly'[Backlog Pallets] ) )
+			)
+		formatString: #,0
+		displayFolder: Service
+		lineageTag: 14eac241-d06a-483c-8536-0dd59ca1188c
+
+	measure 'Avg Stores with Backlog' =
+			AVERAGEX (
+			    VALUES ( 'Pool Point Weekly'[Week Ending] ),
+			    CALCULATE ( SUM ( 'Pool Point Weekly'[Stores with Backlog] ) )
+			)
+		formatString: #,0
+		displayFolder: Service
+		lineageTag: b61d112f-cc66-4261-949b-92588d794d25
+
+	measure Trailers = SUM ( 'Pool Point Weekly'[Trailers] )
+		formatString: #,0
+		displayFolder: Trailers
+		lineageTag: 879e8651-998a-4c30-879e-e8c5587d5833
+
+	measure 'Trailer Fill %' = DIVIDE ( [Pallets Shipped], [Trailers] * [Pallets per Trailer] )
+		formatString: 0.0%
+		displayFolder: Trailers
+		lineageTag: 7e38983e-d83b-4940-9dcc-7d7b7d9a3a31
+
+	measure 'Fill Status' =
+			IF (
+			    NOT ISBLANK ( [Trailer Fill %] ),
+			    IF ( [Trailer Fill %] >= [Trailer Fill Target], "Meets", "Below target" )
+			)
+		displayFolder: Trailers
+		lineageTag: 1cb18abf-73b4-415c-b9b7-d874466568f2
+
+	measure 'Total Cost' = SUM ( 'Pool Point Weekly'[Total Cost] )
+		formatString: \$#,0
+		displayFolder: Cost
+		lineageTag: 2d5fa9f4-7d41-4037-af30-da3773805c3c
+
+	measure 'Linehaul Cost' = SUM ( 'Pool Point Weekly'[Linehaul Cost] )
+		formatString: \$#,0
+		displayFolder: Cost
+		lineageTag: 552ce85e-d070-4ad7-9d3b-60788cbec951
+
+	measure 'Handling Cost' = SUM ( 'Pool Point Weekly'[Handling Cost] )
+		formatString: \$#,0
+		displayFolder: Cost
+		lineageTag: 69c01d3e-f821-4843-9ea6-996a05b05428
+
+	measure 'Final-Mile Cost' = SUM ( 'Pool Point Weekly'[Final-Mile Cost] )
+		formatString: \$#,0
+		displayFolder: Cost
+		lineageTag: f06e0084-98cf-4aa7-a477-e6574cada868
+
+	measure 'Cost per Pallet' = DIVIDE ( CONVERT ( [Total Cost], DOUBLE ), [Pallets Shipped] )
+		formatString: \$#,0.00
+		displayFolder: Cost
+		lineageTag: d2d178d8-a843-498a-b26f-b7be1fa6c987
+
+	/// Cost per pallet across all pool points for the selected weeks.
+	measure 'Network Cost per Pallet' = CALCULATE ( [Cost per Pallet], REMOVEFILTERS ( 'Pool Points' ), REMOVEFILTERS ( 'Carriers' ) )
+		formatString: \$#,0.00
+		displayFolder: Cost
+		lineageTag: 83be1ed1-c2c1-457c-b416-90bd4ac0915a
+
+	measure 'Cost Index vs Network' = DIVIDE ( [Cost per Pallet], [Network Cost per Pallet] )
+		formatString: 0.00
+		displayFolder: Cost
+		lineageTag: 96472b1d-dddd-4735-8894-7a4edf53bc8a
+
+	measure 'Cost Status' =
+			IF (
+			    NOT ISBLANK ( [Cost Index vs Network] ),
+			    IF ( [Cost Index vs Network] > [Cost Alert Index], "High cost", "In range" )
+			)
+		displayFolder: Cost
+		lineageTag: 5bb5d057-9f38-44ca-b7d6-c70557881f6b
+
+	measure 'Forecast Pallets' = SUM ( 'Lane Forecast'[Forecast Pallets] )
+		formatString: #,0
+		displayFolder: Forecast
+		lineageTag: 2589c517-0cc3-4546-94bc-dd6f6cb727ef
+
+	/// 10th percentile scenario.
+	measure 'Forecast Low Pallets' = SUM ( 'Lane Forecast'[Low Pallets] )
+		formatString: #,0
+		displayFolder: Forecast
+		lineageTag: 24d6b734-8ef3-4fa0-aec4-2893c8ce9993
+
+	/// 80th percentile scenario used to size trailers (config.HIGH_SCENARIO_QUANTILE).
+	measure 'Forecast High Pallets' = SUM ( 'Lane Forecast'[High Pallets] )
+		formatString: #,0
+		displayFolder: Forecast
+		lineageTag: e06ef3dc-22a1-452a-a6b9-5780e79ce81f
+
+	measure 'Forecast P90 Pallets' = SUM ( 'Lane Forecast'[P90 Pallets] )
+		formatString: #,0
+		displayFolder: Forecast
+		lineageTag: b972b505-13de-42c2-b2c4-2ba4840b2a7f
+
+	measure 'New Store Pallets' = SUM ( 'Lane Forecast'[New Store Pallets] )
+		formatString: #,0
+		displayFolder: Forecast
+		lineageTag: 5ef953d8-177e-448d-9c2b-590b7d4308b6
+
+	/// Trailers needed for the forecast at each lane's trailing 52-week fill rate.
+	measure 'Trailers Forecast' = SUM ( 'Lane Forecast'[Trailers Forecast] )
+		formatString: #,0
+		displayFolder: Forecast
+		lineageTag: 46f7648c-a004-4256-a3cb-3f0a191f81ff
+
+	measure 'Trailers High' = SUM ( 'Lane Forecast'[Trailers High] )
+		formatString: #,0
+		displayFolder: Forecast
+		lineageTag: 8769aff4-5066-42e7-83ab-ddce84fb7474
+
+	measure 'Contracted Trailers' = SUM ( 'Lane Forecast'[Contracted Trailers] )
+		formatString: #,0
+		displayFolder: Forecast
+		lineageTag: b479973b-a8ec-4804-9900-1972568cb1f2
+
+	/// Trailers above contract in the high scenario.
+	measure 'Extra Trailers Needed' = SUM ( 'Lane Forecast'[Extra Trailers Needed] )
+		formatString: #,0
+		displayFolder: Forecast
+		lineageTag: 67aa53a4-2b7f-4982-b510-ee9593ac777b
+
+	measure 'Capacity Utilization %' = DIVIDE ( [Trailers Forecast], [Contracted Trailers] )
+		formatString: 0.0%
+		displayFolder: Forecast
+		lineageTag: e9ae9f13-b3a6-4c17-a3f8-a054cd40283d
+
+	measure 'Lane-Weeks Over Capacity' = CALCULATE ( COUNTROWS ( 'Lane Forecast' ), 'Lane Forecast'[Capacity Status] = "Over capacity" )
+		formatString: #,0
+		displayFolder: Forecast
+		lineageTag: a4f53a41-5439-43da-aa29-7dc2ecff506d
+
+	measure 'Lane-Weeks At Risk' = CALCULATE ( COUNTROWS ( 'Lane Forecast' ), 'Lane Forecast'[Capacity Status] = "At risk" )
+		formatString: #,0
+		displayFolder: Forecast
+		lineageTag: ab532ffd-3d82-458f-ada2-a27fff419bfe
+
+	/// Forecast method with the lowest pooled pool-point WAPE in the backtest.
+	measure 'Champion Model' =
+			VAR Best = TOPN ( 1, ALL ( 'Backtest Summary' ), 'Backtest Summary'[Pool Point WAPE], ASC )
+			RETURN MAXX ( Best, 'Backtest Summary'[Model] )
+		displayFolder: Forecast
+		lineageTag: 6d947fb6-0cc1-460b-a174-34a6a9edd53f
+
+	/// Champion model's backtest WAPE for one pool point; the pooled network figure otherwise.
+	measure 'Forecast WAPE' =
+			VAR Champion = [Champion Model]
+			VAR PoolPointsInContext = COUNTROWS ( VALUES ( 'Pool Points'[Pool Point ID] ) )
+			RETURN
+			    SWITCH (
+			        TRUE (),
+			        PoolPointsInContext = 1, CALCULATE ( MAX ( 'Forecast Backtest'[WAPE] ), 'Forecast Backtest'[Model] = Champion ),
+			        PoolPointsInContext > 1, CALCULATE ( MAX ( 'Backtest Summary'[Pool Point WAPE] ), 'Backtest Summary'[Model] = Champion, REMOVEFILTERS ( 'Pool Points' ) )
+			    )
+		formatString: 0.0%
+		displayFolder: Forecast
+		lineageTag: e4207395-b2bf-41e7-961c-bad716ec0b5f
+
+	measure 'Store Demand Pallets' = SUM ( 'Store Weekly'[Demand Pallets] )
+		formatString: #,0
+		displayFolder: Stores
+		lineageTag: 4f69ba3a-4bdf-4ee2-983e-8f20800a41c3
+
+	measure 'Store Delivered Pallets' = SUM ( 'Store Weekly'[Delivered Pallets] )
+		formatString: #,0
+		displayFolder: Stores
+		lineageTag: 9b7cd3c2-786a-4eda-9f4f-bbbb35239fb0
+
+	measure 'Store Backlog Pallets' = SUM ( 'Store Weekly'[Backlog Pallets] )
+		formatString: #,0
+		displayFolder: Stores
+		lineageTag: 9d8c5fe1-4372-49e0-b9fa-6974b3c20f19
+
+	measure 'Store Forecast Pallets' = SUM ( 'Store Forecast'[Forecast Pallets] )
+		formatString: #,0
+		displayFolder: Stores
+		lineageTag: a29dc8a4-e942-4c5c-983c-9de0ef27f9f4
+
+	measure 'Peak Planned Pallets' = SUM ( 'Peak Week Store Plan'[Planned Pallets] )
+		formatString: #,0
+		displayFolder: Stores
+		lineageTag: f40f2894-c226-4d60-8762-d40895a0f1e2
+
+	measure 'Peak Backlog Pallets' = SUM ( 'Peak Week Store Plan'[Peak Backlog Pallets] )
+		formatString: #,0
+		displayFolder: Stores
+		lineageTag: 0c814183-c3a0-4208-8422-e847e85cd331
+
+	measure 'Peak Stores with Backlog' = CALCULATE ( COUNTROWS ( 'Peak Week Store Plan' ), 'Peak Week Store Plan'[Peak Backlog Pallets] > 0 )
+		formatString: #,0
+		displayFolder: Stores
+		lineageTag: a0543efb-3f87-40fe-9de4-8230fd7c2c80
+
+	measure 'Change Requests' = COUNTROWS ( 'Schedule Changes' )
+		formatString: #,0
+		displayFolder: Change Requests
+		lineageTag: 38627256-d998-419a-8f54-4e0a44193b2f
+
+	measure 'Change Backlog Impact' = SUM ( 'Schedule Changes'[Backlog Change] )
+		formatString: #,0
+		displayFolder: Change Requests
+		lineageTag: 810b063c-480c-4080-9a53-40c450f61d68
+
+	measure 'Change Cost Impact' = SUM ( 'Schedule Changes'[Cost Change] )
+		formatString: \$#,0
+		displayFolder: Change Requests
+		lineageTag: 8ffe9e2b-e80f-426c-a902-045dab098dd3
+
+	/// Font color for conditional formatting: green when on-time meets target, red when below.
+	measure 'On-Time Color' = SWITCH ( [On-Time Status], "Meets", "#1E7B34", "Below target", "#B42318" )
+		displayFolder: Formatting
+		lineageTag: 3507e4cb-24ea-4632-89aa-da2feb722f3a
+
+	/// Font color for conditional formatting of Trailer Fill %.
+	measure 'Fill Color' = SWITCH ( [Fill Status], "Meets", "#1E7B34", "Below target", "#B42318" )
+		displayFolder: Formatting
+		lineageTag: 21186b47-bd83-4029-9964-fef57adee244
+
+	/// Font color for conditional formatting of Cost Index vs Network.
+	measure 'Cost Color' = SWITCH ( [Cost Status], "In range", "#1E7B34", "High cost", "#B42318" )
+		displayFolder: Formatting
+		lineageTag: 77036b34-65d3-455b-85d7-dd081f8463de
+
+	/// Cell background for the capacity matrix: red = over capacity, amber = at risk in the high case, green = covered. Same rule as capacity.py.
+	measure 'Capacity Color' =
+			SWITCH (
+			    TRUE (),
+			    ISBLANK ( [Contracted Trailers] ), BLANK (),
+			    [Trailers Forecast] > [Contracted Trailers], "#F4C7C3",
+			    [Trailers High] > [Contracted Trailers], "#FBE3A6",
+			    "#D4EDDA"
+			)
+		displayFolder: Formatting
+		lineageTag: 979a349d-4ec4-4d13-b962-587c22949ff5
+
+	/// Subtitle text showing the last actual week.
+	measure 'As-Of Label' =
+			"Actuals through week ending "
+			    & FORMAT ( CALCULATE ( MAX ( 'Pool Point Weekly'[Week Ending] ), REMOVEFILTERS () ), "mmm d, yyyy" )
+		displayFolder: Formatting
+		lineageTag: 154590c9-21d1-4494-bd80-70b02113c58f
+
+	column Placeholder
+		isHidden
+		lineageTag: c71e78ad-b3ad-4efc-bc52-9af58f90d651
+		isNameInferred
+		sourceColumn: [Placeholder]
+
+	partition 'Key Measures' = calculated
+		mode: import
+		source = ROW ( "Placeholder", 0 )
+

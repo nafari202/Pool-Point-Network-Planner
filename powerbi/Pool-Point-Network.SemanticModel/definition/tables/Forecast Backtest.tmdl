@@ -1,0 +1,42 @@
+table 'Forecast Backtest'
+	lineageTag: 0df164f1-d781-4966-8b1a-569816575a8f
+
+	column Model
+		dataType: string
+		lineageTag: a3ed212d-b82e-4cb1-bc90-965b97330f27
+		summarizeBy: none
+		sourceColumn: Model
+
+	column 'Pool Point ID'
+		dataType: string
+		isHidden
+		lineageTag: c40d0d40-2fec-4af9-ac6b-ef302ff39344
+		summarizeBy: none
+		sourceColumn: Pool Point ID
+
+	column WAPE
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 806f414f-4991-4ef2-935e-bbd62d4cd8e8
+		summarizeBy: none
+		sourceColumn: WAPE
+
+	column Bias
+		dataType: double
+		formatString: 0.0%
+		lineageTag: c9e23e1e-c3d4-41e4-8e2a-b126aea9298d
+		summarizeBy: none
+		sourceColumn: Bias
+
+	partition 'Forecast Backtest' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(ProjectFolder & "outputs\backtest_by_pool_point.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Selected = Table.SelectColumns(Promoted, {"model", "pool_point_id", "wape", "bias"}),
+				    Renamed = Table.RenameColumns(Selected, {{"model", "Model"}, {"pool_point_id", "Pool Point ID"}, {"wape", "WAPE"}, {"bias", "Bias"}}),
+				    Typed = Table.TransformColumnTypes(Renamed, {{"Model", type text}, {"Pool Point ID", type text}, {"WAPE", type number}, {"Bias", type number}}, "en-US")
+				in
+				    Typed
+

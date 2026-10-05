@@ -1,0 +1,53 @@
+table 'Peak Week Store Plan'
+	lineageTag: c3cbe463-5730-4a47-a95c-43b1c49299f6
+
+	column 'Store ID'
+		dataType: string
+		isHidden
+		lineageTag: be5900eb-feca-4201-8297-4e41a6bac25b
+		summarizeBy: none
+		sourceColumn: Store ID
+
+	column 'Peak Delivery Days'
+		dataType: string
+		lineageTag: bb4d16a4-fd10-4c80-b279-4345af168293
+		summarizeBy: none
+		sourceColumn: Peak Delivery Days
+
+	column 'Peak Pallet Max'
+		dataType: int64
+		formatString: #,0
+		lineageTag: 67f4b979-273c-439b-b041-7e99ae01e434
+		summarizeBy: none
+		sourceColumn: Peak Pallet Max
+
+	column 'Peak Forecast Pallets'
+		dataType: double
+		formatString: #,0
+		lineageTag: b2f52600-98fb-4b98-8d55-0cb7f03220d9
+		sourceColumn: Peak Forecast Pallets
+
+	column 'Planned Pallets'
+		dataType: int64
+		formatString: #,0
+		lineageTag: 7cd37aa4-4a5b-4f2b-b530-ec91493cac21
+		sourceColumn: Planned Pallets
+
+	column 'Peak Backlog Pallets'
+		dataType: int64
+		formatString: #,0
+		lineageTag: f816d856-35a8-4223-be0b-67246e3ca642
+		sourceColumn: Peak Backlog Pallets
+
+	partition 'Peak Week Store Plan' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(ProjectFolder & "outputs\store_visibility_peak_week.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Selected = Table.SelectColumns(Promoted, {"store_id", "delivery_days", "pallet_max", "forecast_pallets", "planned_pallets", "backlog_pallets"}),
+				    Renamed = Table.RenameColumns(Selected, {{"store_id", "Store ID"}, {"delivery_days", "Peak Delivery Days"}, {"pallet_max", "Peak Pallet Max"}, {"forecast_pallets", "Peak Forecast Pallets"}, {"planned_pallets", "Planned Pallets"}, {"backlog_pallets", "Peak Backlog Pallets"}}),
+				    Typed = Table.TransformColumnTypes(Renamed, {{"Store ID", type text}, {"Peak Delivery Days", type text}, {"Peak Pallet Max", Int64.Type}, {"Peak Forecast Pallets", type number}, {"Planned Pallets", Int64.Type}, {"Peak Backlog Pallets", Int64.Type}}, "en-US")
+				in
+				    Typed
+

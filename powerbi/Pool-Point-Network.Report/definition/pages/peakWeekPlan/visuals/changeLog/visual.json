@@ -1,0 +1,236 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "changeLog",
+  "position": {
+    "x": 32,
+    "y": 522,
+    "z": 7000,
+    "height": 270,
+    "width": 1856,
+    "tabOrder": 7000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Schedule Changes"
+                    }
+                  },
+                  "Property": "Change ID"
+                }
+              },
+              "queryRef": "Schedule Changes.Change ID",
+              "nativeQueryRef": "Change ID"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Schedule Changes"
+                    }
+                  },
+                  "Property": "Change Type"
+                }
+              },
+              "queryRef": "Schedule Changes.Change Type",
+              "nativeQueryRef": "Change Type"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Pool Points"
+                    }
+                  },
+                  "Property": "Pool Point"
+                }
+              },
+              "queryRef": "Pool Points.Pool Point",
+              "nativeQueryRef": "Pool Point"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Schedule Changes"
+                    }
+                  },
+                  "Property": "Reason"
+                }
+              },
+              "queryRef": "Schedule Changes.Reason",
+              "nativeQueryRef": "Reason"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Schedule Changes"
+                    }
+                  },
+                  "Property": "Backlog Change"
+                }
+              },
+              "queryRef": "Schedule Changes.Backlog Change",
+              "nativeQueryRef": "Backlog Change"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Schedule Changes"
+                    }
+                  },
+                  "Property": "Deliveries Change"
+                }
+              },
+              "queryRef": "Schedule Changes.Deliveries Change",
+              "nativeQueryRef": "Deliveries Change"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Schedule Changes"
+                    }
+                  },
+                  "Property": "Trailers Change"
+                }
+              },
+              "queryRef": "Schedule Changes.Trailers Change",
+              "nativeQueryRef": "Trailers Change"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Schedule Changes"
+                    }
+                  },
+                  "Property": "Cost Change"
+                }
+              },
+              "queryRef": "Schedule Changes.Cost Change",
+              "nativeQueryRef": "Cost Change"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Schedule Changes"
+                  }
+                },
+                "Property": "Change ID"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "values": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "13D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "columnHeaders": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "13D"
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "total": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "13D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "grid": [
+        {
+          "properties": {
+            "textSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "13D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Change requests and their peak-week impact'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

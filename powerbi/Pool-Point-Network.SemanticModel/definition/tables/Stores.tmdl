@@ -1,0 +1,92 @@
+table Stores
+	lineageTag: 779602c0-0d0e-4c2b-860f-a30491ec2a57
+
+	column 'Store ID'
+		dataType: string
+		lineageTag: 7fd84a74-a251-42bc-aa59-7195834cd52e
+		summarizeBy: none
+		sourceColumn: Store ID
+
+	column 'Pool Point ID'
+		dataType: string
+		isHidden
+		lineageTag: 3850a6ed-42b7-4976-ab66-cf9fb1558a69
+		summarizeBy: none
+		sourceColumn: Pool Point ID
+
+	column Market
+		dataType: string
+		lineageTag: d37b45a1-8016-4fb6-b311-5a9830d4cef7
+		summarizeBy: none
+		sourceColumn: Market
+
+	column 'Size Tier'
+		dataType: string
+		lineageTag: 445b9095-d117-4959-bf2e-1a9f81e0bae1
+		summarizeBy: none
+		sourceColumn: Size Tier
+
+	column 'Base Weekly Pallets'
+		dataType: double
+		formatString: #,0
+		lineageTag: c236d09e-fba3-4446-91a6-dcc9d2747110
+		summarizeBy: none
+		sourceColumn: Base Weekly Pallets
+
+	column 'Delivery Days'
+		dataType: string
+		lineageTag: b7fd799a-24af-4570-aa9e-8b1a601497f8
+		summarizeBy: none
+		sourceColumn: Delivery Days
+
+	column 'Deliveries per Week'
+		dataType: int64
+		formatString: #,0
+		lineageTag: d2142c20-a70b-49e6-b1d2-c645d9916dd1
+		summarizeBy: none
+		sourceColumn: Deliveries per Week
+
+	column 'Pallet Max'
+		dataType: int64
+		formatString: #,0
+		lineageTag: 05fa279e-e4a3-475d-96f4-f7f10eb5652b
+		summarizeBy: none
+		sourceColumn: Pallet Max
+
+	column 'Open Date'
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 5132aa71-800f-45b8-beb7-e7cc0589c1d9
+		summarizeBy: none
+		sourceColumn: Open Date
+
+	/// Store master for stores in stores.csv; 'Change request CHG-xxx' for stores added by a NEW_STORE request.
+	column 'Store Source'
+		dataType: string
+		lineageTag: b10a4de5-f4b7-4d8b-ba4c-55c6632cb46c
+		summarizeBy: none
+		sourceColumn: Store Source
+
+	partition Stores = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(ProjectFolder & "data\stores.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Master = Table.AddColumn(Table.SelectColumns(Promoted, {"store_id", "pool_point_id", "market", "size_tier", "base_weekly_pallets", "delivery_days", "deliveries_per_week", "pallet_max", "open_date"}), "store_source", each "Store master"),
+				    // New stores exist only as NEW_STORE change requests; market and size tier come from the peak-week plan
+				    Changes = Table.PromoteHeaders(Csv.Document(File.Contents(ProjectFolder & "data\schedule_changes.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]), [PromoteAllScalars = true]),
+				    NewStoreRequests = Table.SelectRows(Changes, each [change_type] = "NEW_STORE" and not List.Contains(Master[store_id], [store_id])),
+				    PeakPlan = Table.PromoteHeaders(Csv.Document(File.Contents(ProjectFolder & "outputs\store_visibility_peak_week.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]), [PromoteAllScalars = true]),
+				    WithPlan = Table.ExpandTableColumn(Table.NestedJoin(NewStoreRequests, {"store_id"}, PeakPlan, {"store_id"}, "Plan", JoinKind.LeftOuter), "Plan", {"market", "size_tier"}),
+				    NewStores = Table.FromRecords(Table.TransformRows(WithPlan, each [
+				        store_id = [store_id], pool_point_id = [pool_point_id], market = [market], size_tier = [size_tier],
+				        base_weekly_pallets = null, delivery_days = [delivery_days],
+				        deliveries_per_week = Text.From(List.Count(Text.Split([delivery_days], "/"))),
+				        pallet_max = [new_value], open_date = null, store_source = "Change request " & [change_id]])),
+				    Combined = Table.Combine({Master, NewStores}),
+				    Renamed = Table.RenameColumns(Combined, {{"store_id", "Store ID"}, {"pool_point_id", "Pool Point ID"}, {"market", "Market"}, {"size_tier", "Size Tier"}, {"base_weekly_pallets", "Base Weekly Pallets"}, {"delivery_days", "Delivery Days"}, {"deliveries_per_week", "Deliveries per Week"}, {"pallet_max", "Pallet Max"}, {"open_date", "Open Date"}, {"store_source", "Store Source"}}),
+				    Typed = Table.TransformColumnTypes(Renamed, {{"Store ID", type text}, {"Pool Point ID", type text}, {"Market", type text}, {"Size Tier", type text}, {"Base Weekly Pallets", type number}, {"Delivery Days", type text}, {"Deliveries per Week", Int64.Type}, {"Pallet Max", Int64.Type}, {"Open Date", type date}, {"Store Source", type text}}, "en-US")
+				in
+				    Typed
+

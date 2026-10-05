@@ -1,0 +1,115 @@
+table 'Schedule Changes'
+	lineageTag: 75966f7e-ff47-470a-b180-0ea517219907
+
+	column 'Change ID'
+		dataType: string
+		lineageTag: 60e278d3-483d-4713-9172-88edaa3d80e1
+		summarizeBy: none
+		sourceColumn: Change ID
+
+	column 'Change Type'
+		dataType: string
+		lineageTag: f7b74b22-ddbb-4c41-a62a-ff397b820e81
+		summarizeBy: none
+		sourceColumn: Change Type
+
+	column 'Pool Point ID'
+		dataType: string
+		isHidden
+		lineageTag: 8051e948-d2ae-4a2d-8955-f96c78c97449
+		summarizeBy: none
+		sourceColumn: Pool Point ID
+
+	column 'Store ID'
+		dataType: string
+		lineageTag: fc769e89-5549-46b9-936c-9fbad7b8f16c
+		summarizeBy: none
+		sourceColumn: Store ID
+
+	column Day
+		dataType: string
+		lineageTag: 46a99bdc-fb70-45e0-b6b6-0f0a32c907b6
+		summarizeBy: none
+		sourceColumn: Day
+
+	column 'Delivery Days'
+		dataType: string
+		lineageTag: 1987cfe7-e764-4ba2-9293-d98a6c6fc849
+		summarizeBy: none
+		sourceColumn: Delivery Days
+
+	column 'Old Value'
+		dataType: string
+		lineageTag: 40ae80c7-7003-478c-a604-bae9d1a6de6a
+		summarizeBy: none
+		sourceColumn: Old Value
+
+	column 'New Value'
+		dataType: string
+		lineageTag: 0a2cc8c9-763c-4b99-b559-ea7a305a9a93
+		summarizeBy: none
+		sourceColumn: New Value
+
+	column 'Opening Pallets'
+		dataType: double
+		formatString: #,0
+		lineageTag: c3d96bfd-d822-4a48-b2d5-f06b82b7278a
+		summarizeBy: none
+		sourceColumn: Opening Pallets
+
+	column Reason
+		dataType: string
+		lineageTag: a6ea7aa0-bcd7-449d-92da-d614450fa1f8
+		summarizeBy: none
+		sourceColumn: Reason
+
+	column 'Requested By'
+		dataType: string
+		lineageTag: 5ea624df-226b-4b15-8cc5-7cdc8750a24b
+		summarizeBy: none
+		sourceColumn: Requested By
+
+	column 'Backlog Change'
+		dataType: int64
+		formatString: #,0
+		lineageTag: c716f5f0-5e85-4b88-b778-adc4f9033500
+		sourceColumn: Backlog Change
+
+	column 'Deliveries Change'
+		dataType: int64
+		formatString: #,0
+		lineageTag: cae5acbd-4d97-4e40-96c9-e3b4c9ff82fd
+		sourceColumn: Deliveries Change
+
+	column 'Trailers Change'
+		dataType: int64
+		formatString: #,0
+		lineageTag: a0029bf6-0d74-4f88-a1bb-fca11ddac2dd
+		sourceColumn: Trailers Change
+
+	column 'Cost Change'
+		dataType: decimal
+		formatString: \$#,0
+		lineageTag: 42d8ad56-86ed-4dc3-b146-c5c6c2f7956f
+		sourceColumn: Cost Change
+
+	column 'Impact Notes'
+		dataType: string
+		lineageTag: 1201a1d1-2179-428c-8f7d-0e97683cd0a2
+		summarizeBy: none
+		sourceColumn: Impact Notes
+
+	partition 'Schedule Changes' = m
+		mode: import
+		source =
+				let
+				    Changes = Table.PromoteHeaders(Csv.Document(File.Contents(ProjectFolder & "data\schedule_changes.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]), [PromoteAllScalars = true]),
+				    Impact = Table.PromoteHeaders(Csv.Document(File.Contents(ProjectFolder & "outputs\schedule_change_impact.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]), [PromoteAllScalars = true]),
+				    Merged = Table.NestedJoin(Changes, {"change_id"}, Impact, {"change_id"}, "Impact", JoinKind.LeftOuter),
+				    Expanded = Table.ExpandTableColumn(Merged, "Impact", {"backlog_change", "deliveries_change", "trailers_change", "cost_change", "notes"}),
+				    Blanks = Table.ReplaceValue(Expanded, "", null, Replacer.ReplaceValue, Table.ColumnNames(Expanded)),
+				    Renamed = Table.RenameColumns(Blanks, {{"change_id", "Change ID"}, {"change_type", "Change Type"}, {"pool_point_id", "Pool Point ID"}, {"store_id", "Store ID"}, {"day", "Day"}, {"delivery_days", "Delivery Days"}, {"old_value", "Old Value"}, {"new_value", "New Value"}, {"opening_pallets", "Opening Pallets"}, {"reason", "Reason"}, {"requested_by", "Requested By"}, {"backlog_change", "Backlog Change"}, {"deliveries_change", "Deliveries Change"}, {"trailers_change", "Trailers Change"}, {"cost_change", "Cost Change"}, {"notes", "Impact Notes"}}),
+				    Typed = Table.TransformColumnTypes(Renamed, {{"Change ID", type text}, {"Change Type", type text}, {"Pool Point ID", type text}, {"Store ID", type text}, {"Day", type text}, {"Delivery Days", type text}, {"Old Value", type text}, {"New Value", type text}, {"Opening Pallets", type number}, {"Reason", type text}, {"Requested By", type text}, {"Backlog Change", Int64.Type}, {"Deliveries Change", Int64.Type}, {"Trailers Change", Int64.Type}, {"Cost Change", Currency.Type}, {"Impact Notes", type text}}, "en-US")
+				in
+				    Typed
+

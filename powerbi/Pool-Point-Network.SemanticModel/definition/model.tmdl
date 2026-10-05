@@ -1,0 +1,30 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_ProTooling = ["MCP-PBIModeling","DevMode"]
+
+ref table Carriers
+ref table 'Pool Points'
+ref table Stores
+ref table 'Pool Point Weekly'
+ref table 'Store Weekly'
+ref table 'Lane Forecast'
+ref table 'Store Forecast'
+ref table 'Forecast Backtest'
+ref table 'Backtest Summary'
+ref table 'Peak Week Scenarios'
+ref table 'Peak Week Store Plan'
+ref table 'Schedule Changes'
+ref table Calendar
+ref table 'Key Measures'
+
+ref cultureInfo en-US
+

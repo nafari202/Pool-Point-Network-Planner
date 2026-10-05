@@ -1,0 +1,52 @@
+relationship 'Pool Points_Carrier ID_Carriers_Carrier ID'
+	fromColumn: 'Pool Points'.'Carrier ID'
+	toColumn: Carriers.'Carrier ID'
+
+relationship 'Stores_Pool Point ID_Pool Points_Pool Point ID'
+	fromColumn: Stores.'Pool Point ID'
+	toColumn: 'Pool Points'.'Pool Point ID'
+
+relationship 'Pool Point Weekly_Pool Point ID_Pool Points_Pool Point ID'
+	fromColumn: 'Pool Point Weekly'.'Pool Point ID'
+	toColumn: 'Pool Points'.'Pool Point ID'
+
+relationship 'Pool Point Weekly_Week Ending_Calendar_Date'
+	fromColumn: 'Pool Point Weekly'.'Week Ending'
+	toColumn: Calendar.Date
+
+relationship 'Store Weekly_Store ID_Stores_Store ID'
+	fromColumn: 'Store Weekly'.'Store ID'
+	toColumn: Stores.'Store ID'
+
+relationship 'Store Weekly_Week Ending_Calendar_Date'
+	fromColumn: 'Store Weekly'.'Week Ending'
+	toColumn: Calendar.Date
+
+relationship 'Lane Forecast_Pool Point ID_Pool Points_Pool Point ID'
+	fromColumn: 'Lane Forecast'.'Pool Point ID'
+	toColumn: 'Pool Points'.'Pool Point ID'
+
+relationship 'Lane Forecast_Week Ending_Calendar_Date'
+	fromColumn: 'Lane Forecast'.'Week Ending'
+	toColumn: Calendar.Date
+
+relationship 'Store Forecast_Store ID_Stores_Store ID'
+	fromColumn: 'Store Forecast'.'Store ID'
+	toColumn: Stores.'Store ID'
+
+relationship 'Store Forecast_Week Ending_Calendar_Date'
+	fromColumn: 'Store Forecast'.'Week Ending'
+	toColumn: Calendar.Date
+
+relationship 'Forecast Backtest_Pool Point ID_Pool Points_Pool Point ID'
+	fromColumn: 'Forecast Backtest'.'Pool Point ID'
+	toColumn: 'Pool Points'.'Pool Point ID'
+
+relationship 'Schedule Changes_Pool Point ID_Pool Points_Pool Point ID'
+	fromColumn: 'Schedule Changes'.'Pool Point ID'
+	toColumn: 'Pool Points'.'Pool Point ID'
+
+relationship 'Peak Week Store Plan_Store ID_Stores_Store ID'
+	fromColumn: 'Peak Week Store Plan'.'Store ID'
+	toColumn: Stores.'Store ID'
+

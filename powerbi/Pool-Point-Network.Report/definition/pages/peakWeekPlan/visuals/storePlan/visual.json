@@ -1,0 +1,222 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "storePlan",
+  "position": {
+    "x": 32,
+    "y": 808,
+    "z": 8000,
+    "height": 248,
+    "width": 1856,
+    "tabOrder": 8000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Stores"
+                    }
+                  },
+                  "Property": "Store ID"
+                }
+              },
+              "queryRef": "Stores.Store ID",
+              "nativeQueryRef": "Store ID"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Pool Points"
+                    }
+                  },
+                  "Property": "Pool Point"
+                }
+              },
+              "queryRef": "Pool Points.Pool Point",
+              "nativeQueryRef": "Pool Point"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Peak Week Store Plan"
+                    }
+                  },
+                  "Property": "Peak Delivery Days"
+                }
+              },
+              "queryRef": "Peak Week Store Plan.Peak Delivery Days",
+              "nativeQueryRef": "Peak Delivery Days"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Peak Week Store Plan"
+                    }
+                  },
+                  "Property": "Peak Pallet Max"
+                }
+              },
+              "queryRef": "Peak Week Store Plan.Peak Pallet Max",
+              "nativeQueryRef": "Peak Pallet Max"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Peak Week Store Plan"
+                    }
+                  },
+                  "Property": "Peak Forecast Pallets"
+                }
+              },
+              "queryRef": "Peak Week Store Plan.Peak Forecast Pallets",
+              "nativeQueryRef": "Peak Forecast Pallets"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Peak Week Store Plan"
+                    }
+                  },
+                  "Property": "Planned Pallets"
+                }
+              },
+              "queryRef": "Peak Week Store Plan.Planned Pallets",
+              "nativeQueryRef": "Planned Pallets"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Peak Week Store Plan"
+                    }
+                  },
+                  "Property": "Peak Backlog Pallets"
+                }
+              },
+              "queryRef": "Peak Week Store Plan.Peak Backlog Pallets",
+              "nativeQueryRef": "Peak Backlog Pallets"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Peak Week Store Plan"
+                  }
+                },
+                "Property": "Peak Backlog Pallets"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "values": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "13D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "columnHeaders": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "13D"
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "total": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "13D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "grid": [
+        {
+          "properties": {
+            "textSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "13D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Store plan for the peak week (mitigated) - stores with backlog first'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

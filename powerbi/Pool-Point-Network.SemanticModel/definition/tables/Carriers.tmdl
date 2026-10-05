@@ -1,0 +1,48 @@
+table Carriers
+	lineageTag: 961e08d6-5963-48cd-986c-fd2d8562472b
+
+	column 'Carrier ID'
+		dataType: string
+		lineageTag: e11a22f2-667a-46b6-9217-aad7ba644db8
+		summarizeBy: none
+		sourceColumn: Carrier ID
+
+	column Carrier
+		dataType: string
+		lineageTag: 2a10b61e-741a-4b76-b355-5f8bae31c8a4
+		summarizeBy: none
+		sourceColumn: Carrier
+
+	column 'Fixed Charge'
+		dataType: decimal
+		formatString: \$#,0.00
+		lineageTag: b3038a20-8c76-42eb-9b24-03e83edeb12e
+		summarizeBy: none
+		sourceColumn: Fixed Charge
+
+	column 'Rate per Mile'
+		dataType: decimal
+		formatString: \$#,0.00
+		lineageTag: e80fe880-2153-457d-af8c-7d1138d193f2
+		summarizeBy: none
+		sourceColumn: Rate per Mile
+
+	column 'Base On-Time Rate'
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 840a98a7-787c-4883-a777-062c77f7a294
+		summarizeBy: none
+		sourceColumn: Base On-Time Rate
+
+	partition Carriers = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(ProjectFolder & "data\carriers.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Selected = Table.SelectColumns(Promoted, {"carrier_id", "carrier_name", "fixed_charge", "rate_per_mile", "base_on_time"}),
+				    Renamed = Table.RenameColumns(Selected, {{"carrier_id", "Carrier ID"}, {"carrier_name", "Carrier"}, {"fixed_charge", "Fixed Charge"}, {"rate_per_mile", "Rate per Mile"}, {"base_on_time", "Base On-Time Rate"}}),
+				    Typed = Table.TransformColumnTypes(Renamed, {{"Carrier ID", type text}, {"Carrier", type text}, {"Fixed Charge", Currency.Type}, {"Rate per Mile", Currency.Type}, {"Base On-Time Rate", type number}}, "en-US")
+				in
+				    Typed
+

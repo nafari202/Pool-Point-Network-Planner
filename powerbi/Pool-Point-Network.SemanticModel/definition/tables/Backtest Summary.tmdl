@@ -1,0 +1,42 @@
+table 'Backtest Summary'
+	lineageTag: bab290db-ee91-4ee9-a72e-0a054f19a28e
+
+	column Model
+		dataType: string
+		lineageTag: 14d01907-14cf-4150-9dae-861a47e7f262
+		summarizeBy: none
+		sourceColumn: Model
+
+	column 'Pool Point WAPE'
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 1bca23f1-a3a8-4cb3-b2d6-aba1154bf4ae
+		summarizeBy: none
+		sourceColumn: Pool Point WAPE
+
+	column 'Network WAPE'
+		dataType: double
+		formatString: 0.0%
+		lineageTag: f62fc5e4-79a9-4ac4-94dc-c0a3449f9b40
+		summarizeBy: none
+		sourceColumn: Network WAPE
+
+	column Bias
+		dataType: double
+		formatString: 0.0%
+		lineageTag: a7073c50-56eb-4e54-9b7e-e973a62ac235
+		summarizeBy: none
+		sourceColumn: Bias
+
+	partition 'Backtest Summary' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(ProjectFolder & "outputs\backtest_summary.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Selected = Table.SelectColumns(Promoted, {"model", "pool_point_wape", "network_wape", "bias"}),
+				    Renamed = Table.RenameColumns(Selected, {{"model", "Model"}, {"pool_point_wape", "Pool Point WAPE"}, {"network_wape", "Network WAPE"}, {"bias", "Bias"}}),
+				    Typed = Table.TransformColumnTypes(Renamed, {{"Model", type text}, {"Pool Point WAPE", type number}, {"Network WAPE", type number}, {"Bias", type number}}, "en-US")
+				in
+				    Typed
+

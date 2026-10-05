@@ -1,0 +1,106 @@
+table 'Lane Forecast'
+	lineageTag: b5bdfdce-8105-4a52-9f23-9489e8c94c1a
+
+	column 'Week Ending'
+		dataType: dateTime
+		isHidden
+		formatString: yyyy-mm-dd
+		lineageTag: d93374d0-3a53-4c06-83bb-075568f6187f
+		summarizeBy: none
+		sourceColumn: Week Ending
+
+	column 'Pool Point ID'
+		dataType: string
+		isHidden
+		lineageTag: a0e7c091-659f-4609-ae46-6ca3d7a43232
+		summarizeBy: none
+		sourceColumn: Pool Point ID
+
+	column 'Base Forecast Pallets'
+		dataType: double
+		isHidden
+		formatString: #,0
+		lineageTag: 1bdfabe0-cdf3-4fb2-af4c-4217548b0d3e
+		sourceColumn: Base Forecast Pallets
+
+	column 'New Store Pallets'
+		dataType: double
+		isHidden
+		formatString: #,0
+		lineageTag: 2b017d82-dca3-4ac4-85a1-fa5e402d0f99
+		sourceColumn: New Store Pallets
+
+	column 'Forecast Pallets'
+		dataType: double
+		isHidden
+		formatString: #,0
+		lineageTag: 0228104a-47f7-4136-ac7c-bbc83a4da111
+		sourceColumn: Forecast Pallets
+
+	column 'Low Pallets'
+		dataType: double
+		isHidden
+		formatString: #,0
+		lineageTag: f46c0438-b0d1-4520-9d1a-9ca4c7e343e4
+		sourceColumn: Low Pallets
+
+	column 'High Pallets'
+		dataType: double
+		isHidden
+		formatString: #,0
+		lineageTag: 7149fff7-7a73-43d6-9384-196147f2688a
+		sourceColumn: High Pallets
+
+	column 'P90 Pallets'
+		dataType: double
+		isHidden
+		formatString: #,0
+		lineageTag: aa969eb6-0970-4480-b931-f3c50b196902
+		sourceColumn: P90 Pallets
+
+	column 'Contracted Trailers'
+		dataType: int64
+		isHidden
+		formatString: #,0
+		lineageTag: f6b27e8b-3975-44bd-930e-83644d14d4de
+		sourceColumn: Contracted Trailers
+
+	column 'Trailers Forecast'
+		dataType: int64
+		isHidden
+		formatString: #,0
+		lineageTag: 15faf406-4419-4bd3-b516-79bdd0ba8d96
+		sourceColumn: Trailers Forecast
+
+	column 'Trailers High'
+		dataType: int64
+		isHidden
+		formatString: #,0
+		lineageTag: dfb6d335-b928-4855-bace-cf9e1c85e5d1
+		sourceColumn: Trailers High
+
+	column 'Extra Trailers Needed'
+		dataType: int64
+		isHidden
+		formatString: #,0
+		lineageTag: 977ddcc3-d913-47f7-9b63-6396bac6a31f
+		sourceColumn: Extra Trailers Needed
+
+	column 'Capacity Status'
+		dataType: string
+		lineageTag: f448ef8a-e8ed-41fc-aa90-62fd4235c089
+		summarizeBy: none
+		sourceColumn: Capacity Status
+
+	partition 'Lane Forecast' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(ProjectFolder & "outputs\lane_capacity_outlook.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Selected = Table.SelectColumns(Promoted, {"week_ending", "pool_point_id", "base_forecast_pallets", "new_store_pallets", "forecast_pallets", "low_pallets", "high_pallets", "p90_pallets", "contracted_trailers_per_week", "trailers_forecast", "trailers_high", "extra_trailers_needed", "capacity_status"}),
+				    Renamed = Table.RenameColumns(Selected, {{"week_ending", "Week Ending"}, {"pool_point_id", "Pool Point ID"}, {"base_forecast_pallets", "Base Forecast Pallets"}, {"new_store_pallets", "New Store Pallets"}, {"forecast_pallets", "Forecast Pallets"}, {"low_pallets", "Low Pallets"}, {"high_pallets", "High Pallets"}, {"p90_pallets", "P90 Pallets"}, {"contracted_trailers_per_week", "Contracted Trailers"}, {"trailers_forecast", "Trailers Forecast"}, {"trailers_high", "Trailers High"}, {"extra_trailers_needed", "Extra Trailers Needed"}, {"capacity_status", "Capacity Status"}}),
+				    Typed = Table.TransformColumnTypes(Renamed, {{"Week Ending", type date}, {"Pool Point ID", type text}, {"Base Forecast Pallets", type number}, {"New Store Pallets", type number}, {"Forecast Pallets", type number}, {"Low Pallets", type number}, {"High Pallets", type number}, {"P90 Pallets", type number}, {"Contracted Trailers", Int64.Type}, {"Trailers Forecast", Int64.Type}, {"Trailers High", Int64.Type}, {"Extra Trailers Needed", Int64.Type}, {"Capacity Status", type text}}, "en-US")
+				in
+				    Typed
+

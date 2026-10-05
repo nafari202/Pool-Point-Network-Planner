@@ -1,0 +1,93 @@
+/// Daily date table spanning history and forecast. Facts join on Saturday week-ending dates. Period splits weeks relative to the as-of week (last actual week).
+table Calendar
+	lineageTag: e31ce862-8534-4f05-8986-27a66562b0ae
+	dataCategory: Time
+
+	column Date
+		isUnique
+		formatString: yyyy-mm-dd
+		lineageTag: 9fd5df36-8cb1-4900-828b-14f28da1265b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+	/// Saturday that ends the retail week. Use this on chart axes; every fact table records one row per week on this date.
+	column 'Week Ending'
+		formatString: yyyy-mm-dd
+		lineageTag: e4813db7-6783-4173-bbcf-5ba92bcee1d8
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Week Ending]
+
+	column Year
+		formatString: 0
+		lineageTag: 12254d0b-96f4-4b5d-8c78-f9eeae516d34
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year]
+
+	column Quarter
+		lineageTag: 6a03d032-ea77-417d-bfa0-6b7cad65b0e3
+		isNameInferred
+		sourceColumn: [Quarter]
+
+	column 'Month Number'
+		isHidden
+		lineageTag: 51cbe2a5-d239-43f4-b651-034b2ce1a003
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month Number]
+
+	column Month
+		lineageTag: 6c5fbc03-7e3f-455b-89d5-b35f4d066303
+		isNameInferred
+		sourceColumn: [Month]
+		sortByColumn: 'Month Number'
+
+	column 'Year Month'
+		lineageTag: e5fe8daa-8b80-4ff0-b4fe-c75cc5f9a567
+		isNameInferred
+		sourceColumn: [Year Month]
+
+	/// Weeks from the as-of week (last actual week = 0). Negative = history, positive = forecast.
+	column 'Week Offset'
+		lineageTag: 36e0a20b-84e1-4040-8cc5-82a5c748b804
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Week Offset]
+
+	/// Earlier history, Last 52 weeks (the scorecard window used by the Python pipeline), or Forecast.
+	column Period
+		lineageTag: 12f38937-846c-40aa-aab0-3a1d00be6323
+		isNameInferred
+		sourceColumn: [Period]
+
+	partition Calendar = calculated
+		mode: import
+		source =
+				VAR AsOf = MAX ( 'Pool Point Weekly'[Week Ending] )
+				VAR StartDay = MIN ( 'Pool Point Weekly'[Week Ending] ) - 6
+				VAR EndDay = MAX ( 'Lane Forecast'[Week Ending] )
+				VAR Days =
+				    ADDCOLUMNS (
+				        CALENDAR ( StartDay, EndDay ),
+				        "Week Ending", [Date] + 7 - WEEKDAY ( [Date], 1 )
+				    )
+				RETURN
+				    ADDCOLUMNS (
+				        Days,
+				        "Year", YEAR ( [Date] ),
+				        "Quarter", "Q" & QUARTER ( [Date] ),
+				        "Month Number", MONTH ( [Date] ),
+				        "Month", FORMAT ( [Date], "mmm" ),
+				        "Year Month", FORMAT ( [Date], "yyyy-mm" ),
+				        "Week Offset", INT ( ( INT ( [Week Ending] ) - INT ( AsOf ) ) / 7 ),
+				        "Period",
+				            SWITCH (
+				                TRUE (),
+				                [Week Ending] > AsOf, "Forecast",
+				                [Week Ending] > AsOf - 364, "Last 52 weeks",
+				                "Earlier history"
+				            )
+				    )
+

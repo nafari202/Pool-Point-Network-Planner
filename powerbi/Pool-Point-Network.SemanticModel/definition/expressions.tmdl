@@ -1,0 +1,4 @@
+/// Root folder of the pool-point-network-planner repo. Change this if the repo moves; every table reads its CSV relative to it.
+expression ProjectFolder = "C:\Users\nafar\pool-point-network-planner\" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: a938a60f-fc18-4af2-b26b-692c61d540c6
+

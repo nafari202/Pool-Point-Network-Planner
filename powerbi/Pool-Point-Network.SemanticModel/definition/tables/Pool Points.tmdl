@@ -1,0 +1,97 @@
+table 'Pool Points'
+	lineageTag: 62e75b25-b34b-4d0e-b3f1-64a930ed504b
+
+	column 'Pool Point ID'
+		dataType: string
+		lineageTag: b3428f9a-7f2c-4bf1-8340-09a535e3a694
+		summarizeBy: none
+		sourceColumn: Pool Point ID
+
+	column City
+		dataType: string
+		lineageTag: c08af403-80c9-4f74-b5d4-8783da08e651
+		dataCategory: City
+		summarizeBy: none
+		sourceColumn: City
+
+	column State
+		dataType: string
+		lineageTag: 178843bb-4ddb-40b9-b270-cb751823a964
+		dataCategory: StateOrProvince
+		summarizeBy: none
+		sourceColumn: State
+
+	column 'Miles from DC'
+		dataType: int64
+		formatString: #,0
+		lineageTag: 212014d3-35f1-453c-9aee-dabc974c0587
+		summarizeBy: none
+		sourceColumn: Miles from DC
+
+	column 'Carrier ID'
+		dataType: string
+		isHidden
+		lineageTag: 8170f1f6-3123-412a-b15b-c385b728b629
+		summarizeBy: none
+		sourceColumn: Carrier ID
+
+	column 'Handling per Pallet'
+		dataType: decimal
+		formatString: \$#,0.00
+		lineageTag: c8bfa026-9c2c-4b5d-8ba2-db11c3b702ae
+		summarizeBy: none
+		sourceColumn: Handling per Pallet
+
+	column 'Cost per Stop'
+		dataType: decimal
+		formatString: \$#,0.00
+		lineageTag: b4f0acff-f476-457a-841c-7e3332a6e3ca
+		summarizeBy: none
+		sourceColumn: Cost per Stop
+
+	column 'Winter Exposed'
+		dataType: boolean
+		lineageTag: 0fb5bc7d-f7c6-4534-868a-e9d67e2cf7af
+		summarizeBy: none
+		sourceColumn: Winter Exposed
+
+	column 'Linehaul Cost per Trailer'
+		dataType: decimal
+		formatString: \$#,0.00
+		lineageTag: 288fddbe-8ece-4fee-b2fb-6b18b92ca148
+		summarizeBy: none
+		sourceColumn: Linehaul Cost per Trailer
+
+	column 'Contracted Trailers per Week'
+		dataType: int64
+		formatString: #,0
+		lineageTag: 16967965-c2fe-4755-94ef-b0a4d20fd1e4
+		summarizeBy: none
+		sourceColumn: Contracted Trailers per Week
+
+	column 'Trailing Fill %'
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 21706e60-7395-425d-902f-67e90c8fa4b7
+		summarizeBy: none
+		sourceColumn: Trailing Fill %
+
+	column 'Pool Point'
+		dataType: string
+		lineageTag: b4dd522d-5a62-4f96-a4a2-7c6dccf98d54
+		summarizeBy: none
+		sourceColumn: Pool Point
+
+	partition 'Pool Points' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(ProjectFolder & "data\pool_points.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Selected = Table.SelectColumns(Promoted, {"pool_point_id", "city", "state", "miles_from_dc", "carrier_id", "handling_per_pallet", "cost_per_stop", "winter_exposed", "linehaul_cost_per_trailer", "contracted_trailers_per_week", "trailing_fill_pct"}),
+				    Renamed = Table.RenameColumns(Selected, {{"pool_point_id", "Pool Point ID"}, {"city", "City"}, {"state", "State"}, {"miles_from_dc", "Miles from DC"}, {"carrier_id", "Carrier ID"}, {"handling_per_pallet", "Handling per Pallet"}, {"cost_per_stop", "Cost per Stop"}, {"winter_exposed", "Winter Exposed"}, {"linehaul_cost_per_trailer", "Linehaul Cost per Trailer"}, {"contracted_trailers_per_week", "Contracted Trailers per Week"}, {"trailing_fill_pct", "Trailing Fill %"}}),
+				    Typed = Table.TransformColumnTypes(Renamed, {{"Pool Point ID", type text}, {"City", type text}, {"State", type text}, {"Miles from DC", Int64.Type}, {"Carrier ID", type text}, {"Handling per Pallet", Currency.Type}, {"Cost per Stop", Currency.Type}, {"Winter Exposed", type logical}, {"Linehaul Cost per Trailer", Currency.Type}, {"Contracted Trailers per Week", Int64.Type}, {"Trailing Fill %", type number}}, "en-US"),
+				    Added = Table.AddColumn(Typed, "Pool Point", each [Pool Point ID] & " " & [City], type text)
+				in
+				    Added
+

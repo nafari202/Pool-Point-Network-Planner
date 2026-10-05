@@ -1,0 +1,77 @@
+table 'Peak Week Scenarios'
+	lineageTag: afcc7f70-891e-4dcd-a1c3-358860715f82
+
+	column Scenario
+		dataType: string
+		lineageTag: b05344dd-aa74-433f-ab4c-4000cc56b199
+		summarizeBy: none
+		sourceColumn: Scenario
+
+	column Deliveries
+		dataType: int64
+		formatString: #,0
+		lineageTag: 19cc013d-eb12-4c0f-b701-e4d5f314debb
+		sourceColumn: Deliveries
+
+	column 'Pallets Delivered'
+		dataType: int64
+		formatString: #,0
+		lineageTag: bee0d02a-275e-43f4-98a0-e06b8b6fe218
+		sourceColumn: Pallets Delivered
+
+	column 'Backlog Pallets'
+		dataType: int64
+		formatString: #,0
+		lineageTag: ca23a266-f898-4833-9bac-f0e429587b08
+		sourceColumn: Backlog Pallets
+
+	column 'Stores with Backlog'
+		dataType: int64
+		formatString: #,0
+		lineageTag: e15cabd5-c280-4afa-80df-e03dc3dfe898
+		sourceColumn: Stores with Backlog
+
+	column Trailers
+		dataType: int64
+		formatString: #,0
+		lineageTag: 862e9b0a-c2fd-4db0-aa6d-43046bf73e06
+		sourceColumn: Trailers
+
+	column 'Trailer Fill %'
+		dataType: double
+		formatString: 0.0%
+		lineageTag: 4f113038-6a52-4ad2-99aa-d30d75eb7339
+		summarizeBy: none
+		sourceColumn: Trailer Fill %
+
+	column 'Linehaul Cost'
+		dataType: decimal
+		formatString: \$#,0
+		lineageTag: 001391b1-3310-4447-98a5-a51257a2b025
+		sourceColumn: Linehaul Cost
+
+	column 'Total Cost'
+		dataType: decimal
+		formatString: \$#,0
+		lineageTag: e940e5ee-7a61-488a-b675-09c3a63be9ba
+		sourceColumn: Total Cost
+
+	column 'Cost per Pallet'
+		dataType: decimal
+		formatString: \$#,0.00
+		lineageTag: fc7a04f0-2e55-45d1-9f62-27bfc40ac8ed
+		summarizeBy: none
+		sourceColumn: Cost per Pallet
+
+	partition 'Peak Week Scenarios' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(ProjectFolder & "outputs\peak_week_scenarios.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Selected = Table.SelectColumns(Promoted, {"scenario", "deliveries", "pallets_delivered", "backlog_pallets", "stores_with_backlog", "trailers", "trailer_fill_pct", "linehaul_cost", "total_cost", "cost_per_pallet"}),
+				    Renamed = Table.RenameColumns(Selected, {{"scenario", "Scenario"}, {"deliveries", "Deliveries"}, {"pallets_delivered", "Pallets Delivered"}, {"backlog_pallets", "Backlog Pallets"}, {"stores_with_backlog", "Stores with Backlog"}, {"trailers", "Trailers"}, {"trailer_fill_pct", "Trailer Fill %"}, {"linehaul_cost", "Linehaul Cost"}, {"total_cost", "Total Cost"}, {"cost_per_pallet", "Cost per Pallet"}}),
+				    Typed = Table.TransformColumnTypes(Renamed, {{"Scenario", type text}, {"Deliveries", Int64.Type}, {"Pallets Delivered", Int64.Type}, {"Backlog Pallets", Int64.Type}, {"Stores with Backlog", Int64.Type}, {"Trailers", Int64.Type}, {"Trailer Fill %", type number}, {"Linehaul Cost", Currency.Type}, {"Total Cost", Currency.Type}, {"Cost per Pallet", Currency.Type}}, "en-US")
+				in
+				    Typed
+

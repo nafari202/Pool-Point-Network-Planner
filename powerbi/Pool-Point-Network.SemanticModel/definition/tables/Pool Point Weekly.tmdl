@@ -1,0 +1,114 @@
+table 'Pool Point Weekly'
+	lineageTag: a382bb9e-e7a8-4d6c-98b0-b4f898c1eb86
+
+	column 'Pool Point ID'
+		dataType: string
+		isHidden
+		lineageTag: a7ebd19d-8b43-458b-984c-702b2fdc1e46
+		summarizeBy: none
+		sourceColumn: Pool Point ID
+
+	column 'Week Ending'
+		dataType: dateTime
+		isHidden
+		formatString: yyyy-mm-dd
+		lineageTag: 9447e120-7d0d-4e6f-b973-71adca0adbce
+		summarizeBy: none
+		sourceColumn: Week Ending
+
+	column 'Demand Pallets'
+		dataType: double
+		isHidden
+		formatString: #,0
+		lineageTag: b4030878-8be2-4e9a-b8fe-daf2867f4772
+		sourceColumn: Demand Pallets
+
+	column 'Pallets Shipped'
+		dataType: double
+		isHidden
+		formatString: #,0
+		lineageTag: 78de017f-1283-43d1-89e1-9b04902f68fa
+		sourceColumn: Pallets Shipped
+
+	column 'Backlog Pallets'
+		dataType: double
+		isHidden
+		formatString: #,0
+		lineageTag: cdaee79c-4336-4a4b-9c09-005bdea4e0d8
+		sourceColumn: Backlog Pallets
+
+	column 'Stores with Backlog'
+		dataType: int64
+		isHidden
+		formatString: #,0
+		lineageTag: 310f3050-f861-4955-bbe9-7888713f5ddd
+		sourceColumn: Stores with Backlog
+
+	column 'Open Stores'
+		dataType: int64
+		isHidden
+		formatString: #,0
+		lineageTag: e88ce0e3-75d4-4093-b757-e85d0d0f41e6
+		sourceColumn: Open Stores
+
+	column Stops
+		dataType: int64
+		isHidden
+		formatString: #,0
+		lineageTag: d6f4445b-eba0-416b-ad0b-d86ea55eeb7e
+		sourceColumn: Stops
+
+	column Trailers
+		dataType: int64
+		isHidden
+		formatString: #,0
+		lineageTag: 12d21d38-9a11-41ac-828a-0eb93bb1ea4d
+		sourceColumn: Trailers
+
+	column 'On-Time Stops'
+		dataType: int64
+		isHidden
+		formatString: #,0
+		lineageTag: 26e87a68-dea3-49ec-abc3-2228efb6d143
+		sourceColumn: On-Time Stops
+
+	column 'Linehaul Cost'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0
+		lineageTag: d0707689-f4fb-45ae-967b-f8bb3831a0b2
+		sourceColumn: Linehaul Cost
+
+	column 'Handling Cost'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0
+		lineageTag: 898ccf8f-7549-41b4-b4be-88a0d1bdc484
+		sourceColumn: Handling Cost
+
+	column 'Final-Mile Cost'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0
+		lineageTag: 0f35987b-cdce-4978-9af8-1abc59f845c3
+		sourceColumn: Final-Mile Cost
+
+	column 'Total Cost'
+		dataType: decimal
+		isHidden
+		formatString: \$#,0
+		lineageTag: 60a9f455-5838-4d04-81e9-c170fea97616
+		sourceColumn: Total Cost
+
+	partition 'Pool Point Weekly' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(ProjectFolder & "data\pool_point_weekly_history.csv"), [Delimiter = ",", Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Source, [PromoteAllScalars = true]),
+				    Selected = Table.SelectColumns(Promoted, {"pool_point_id", "week_ending", "demand_pallets", "pallets_shipped", "backlog_pallets", "stores_with_backlog", "open_stores", "stops", "trailers", "on_time_stops", "linehaul_cost", "handling_cost", "final_mile_cost", "total_cost"}),
+				    Renamed = Table.RenameColumns(Selected, {{"pool_point_id", "Pool Point ID"}, {"week_ending", "Week Ending"}, {"demand_pallets", "Demand Pallets"}, {"pallets_shipped", "Pallets Shipped"}, {"backlog_pallets", "Backlog Pallets"}, {"stores_with_backlog", "Stores with Backlog"}, {"open_stores", "Open Stores"}, {"stops", "Stops"}, {"trailers", "Trailers"}, {"on_time_stops", "On-Time Stops"}, {"linehaul_cost", "Linehaul Cost"}, {"handling_cost", "Handling Cost"}, {"final_mile_cost", "Final-Mile Cost"}, {"total_cost", "Total Cost"}}),
+				    Typed = Table.TransformColumnTypes(Renamed, {{"Pool Point ID", type text}, {"Week Ending", type date}, {"Demand Pallets", type number}, {"Pallets Shipped", type number}, {"Backlog Pallets", type number}, {"Stores with Backlog", Int64.Type}, {"Open Stores", Int64.Type}, {"Stops", Int64.Type}, {"Trailers", Int64.Type}, {"On-Time Stops", Int64.Type}, {"Linehaul Cost", Currency.Type}, {"Handling Cost", Currency.Type}, {"Final-Mile Cost", Currency.Type}, {"Total Cost", Currency.Type}}, "en-US")
+				in
+				    Typed
+
