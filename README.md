@@ -1,6 +1,6 @@
 # Pool Point Network Planner
 **Author:** Nana Afari  
-**Tools:** Python (pandas, statsmodels, matplotlib, openpyxl) · Excel (INDEX/MATCH, SUMIFS, PivotTables, conditional formatting, data validation)  
+**Tools:** Python (pandas, statsmodels, matplotlib, openpyxl) · Excel (XLOOKUP, SUMIFS, PivotTables, conditional formatting, data validation)  
 **Data:** U.S. Census clothing store sales (real) driving a simulated retail outbound network
 
 ---
@@ -56,7 +56,7 @@ The network has one DC, 8 pool points, 4 linehaul carriers, 136 stores (two of t
 
 | Sheet | What it does |
 |---|---|
-| Dashboard | Pick a pool point from a dropdown. KPI tiles, the 26-week forecast, and both charts update through INDEX/MATCH and SUMIFS. |
+| Dashboard | Pick a pool point from a dropdown. KPI tiles, the 26-week forecast, and both charts update through XLOOKUP and SUMIFS. |
 | KPI Scorecard | Pool point and carrier scorecards. Status columns are formulas against named targets on the Settings sheet. |
 | Volume Forecast | Weekly forecast by lane. Trailers needed, contracted capacity, and capacity status are live formulas. |
 | Forecast Matrix | Pool point by week heatmap of forecast pallets. |

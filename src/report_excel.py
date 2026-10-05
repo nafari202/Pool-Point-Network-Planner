@@ -202,8 +202,8 @@ def _pool_points(wb, pool_points):
                         formats={"handling_per_pallet": MONEY, "cost_per_stop": MONEY0, "linehaul_cost_per_trailer": MONEY,
                                  "trailing_fill_pct": PCT1})
     for r in range(5, last + 1):
-        ws[f"H{r}"] = (f"=INDEX(Carriers!$C:$C,MATCH(E{r},Carriers!$A:$A,0))"
-                       f"+D{r}*INDEX(Carriers!$D:$D,MATCH(E{r},Carriers!$A:$A,0))")
+        ws[f"H{r}"] = (f"=_xlfn.XLOOKUP(E{r},Carriers!$A:$A,Carriers!$C:$C)"
+                       f"+D{r}*_xlfn.XLOOKUP(E{r},Carriers!$A:$A,Carriers!$D:$D)")
         ws[f"H{r}"].number_format = MONEY
     _widths(ws, {c: 15 for c in "ABCDEFGHIJK"})
     return last
@@ -232,10 +232,10 @@ def _volume_forecast(wb, pool_forecast, pool_points):
     for r, row in enumerate(frame.itertuples(index=False), start=5):
         for c, value in enumerate(row, start=1):
             ws.cell(row=r, column=c, value=_clean(value))
-        ws[f"I{r}"] = f"=INDEX('Pool Points'!$J:$J,MATCH(B{r},'Pool Points'!$A:$A,0))"
+        ws[f"I{r}"] = f"=_xlfn.XLOOKUP(B{r},'Pool Points'!$A:$A,'Pool Points'!$J:$J)"
         ws[f"J{r}"] = f"=ROUNDUP(E{r}/(PalletsPerTrailer*I{r}),0)"
         ws[f"K{r}"] = f"=ROUNDUP(G{r}/(PalletsPerTrailer*I{r}),0)"
-        ws[f"L{r}"] = f"=INDEX('Pool Points'!$I:$I,MATCH(B{r},'Pool Points'!$A:$A,0))"
+        ws[f"L{r}"] = f"=_xlfn.XLOOKUP(B{r},'Pool Points'!$A:$A,'Pool Points'!$I:$I)"
         ws[f"M{r}"] = f"=MAX(0,K{r}-L{r})"
         ws[f"N{r}"] = f'=IF(J{r}>L{r},"Over capacity",IF(K{r}>L{r},"At risk","Covered"))'
     last = 4 + len(frame)
@@ -380,18 +380,18 @@ def _dashboard(wb, pool_points, weeks, fc_last):
     dv = DataValidation(type="list", formula1=f"='Pool Points'!$A$5:$A${4 + len(pool_points)}", allow_blank=False)
     ws.add_data_validation(dv)
     dv.add("B4")
-    ws["B5"] = "=INDEX('Pool Points'!$B:$B,MATCH($B$4,'Pool Points'!$A:$A,0))&\", \"&INDEX('Pool Points'!$C:$C,MATCH($B$4,'Pool Points'!$A:$A,0))"
-    ws["B6"] = "=INDEX('Pool Points'!$E:$E,MATCH($B$4,'Pool Points'!$A:$A,0))"
+    ws["B5"] = "=_xlfn.XLOOKUP($B$4,'Pool Points'!$A:$A,'Pool Points'!$B:$B)&\", \"&_xlfn.XLOOKUP($B$4,'Pool Points'!$A:$A,'Pool Points'!$C:$C)"
+    ws["B6"] = "=_xlfn.XLOOKUP($B$4,'Pool Points'!$A:$A,'Pool Points'!$E:$E)"
 
     sc = "'KPI Scorecard'"
     tiles = [
-        ("Avg weekly pallets", f"=INDEX({sc}!$D:$D,MATCH($B$4,{sc}!$A:$A,0))", INT),
-        ("YoY volume growth", f"=INDEX({sc}!$E:$E,MATCH($B$4,{sc}!$A:$A,0))", PCT1),
-        ("On-time delivery", f"=INDEX({sc}!$F:$F,MATCH($B$4,{sc}!$A:$A,0))", PCT1),
-        ("Trailer fill", f"=INDEX({sc}!$H:$H,MATCH($B$4,{sc}!$A:$A,0))", PCT1),
-        ("Cost per pallet", f"=INDEX({sc}!$J:$J,MATCH($B$4,{sc}!$A:$A,0))", MONEY),
-        ("Forecast WAPE", f"=INDEX({sc}!$N:$N,MATCH($B$4,{sc}!$A:$A,0))", PCT1),
-        ("Peak forecast week", f"=INDEX($A$13:$A${12 + len(weeks)},MATCH(MAX($B$13:$B${12 + len(weeks)}),$B$13:$B${12 + len(weeks)},0))", "mmm d"),
+        ("Avg weekly pallets", f"=_xlfn.XLOOKUP($B$4,{sc}!$A:$A,{sc}!$D:$D)", INT),
+        ("YoY volume growth", f"=_xlfn.XLOOKUP($B$4,{sc}!$A:$A,{sc}!$E:$E)", PCT1),
+        ("On-time delivery", f"=_xlfn.XLOOKUP($B$4,{sc}!$A:$A,{sc}!$F:$F)", PCT1),
+        ("Trailer fill", f"=_xlfn.XLOOKUP($B$4,{sc}!$A:$A,{sc}!$H:$H)", PCT1),
+        ("Cost per pallet", f"=_xlfn.XLOOKUP($B$4,{sc}!$A:$A,{sc}!$J:$J)", MONEY),
+        ("Forecast WAPE", f"=_xlfn.XLOOKUP($B$4,{sc}!$A:$A,{sc}!$N:$N)", PCT1),
+        ("Peak forecast week", f"=_xlfn.XLOOKUP(MAX($B$13:$B${12 + len(weeks)}),$B$13:$B${12 + len(weeks)},$A$13:$A${12 + len(weeks)})", "mmm d"),
         ("Weeks over capacity", f'=COUNTIF($G$13:$G${12 + len(weeks)},"Over capacity")', INT),
     ]
     for j, (label, formula, fmt) in enumerate(tiles, start=1):
@@ -416,7 +416,7 @@ def _dashboard(wb, pool_points, weeks, fc_last):
         ws[f"B{i}"] = f"=SUMIFS({FC}!$E$5:$E${fc_last},{crit})"
         ws[f"C{i}"] = f"=SUMIFS({FC}!$G$5:$G${fc_last},{crit})"
         ws[f"D{i}"] = f"=SUMIFS({FC}!$J$5:$J${fc_last},{crit})"
-        ws[f"E{i}"] = "=INDEX('Pool Points'!$I:$I,MATCH($B$4,'Pool Points'!$A:$A,0))"
+        ws[f"E{i}"] = "=_xlfn.XLOOKUP($B$4,'Pool Points'!$A:$A,'Pool Points'!$I:$I)"
         ws[f"F{i}"] = f"=D{i}-E{i}"
         ws[f"G{i}"] = f'=IF(D{i}>E{i},"Over capacity",IF(SUMIFS({FC}!$K$5:$K${fc_last},{crit})>E{i},"At risk","Covered"))'
         for c, fmt in zip("BCDEF", [DEC1, DEC1, INT, INT, '+#,##0;-#,##0;0']):
@@ -509,7 +509,7 @@ def _store_visibility(wb, plan, store_forecast, stores, as_of):
     sfr = f"'Store Forecast'!$D$5:$D${sf_last}"
     for r, row in enumerate(vis.itertuples(index=False), start=5):
         ws[f"A{r}"], ws[f"B{r}"], ws[f"C{r}"] = row.store_id, row.pool_point_id, row.market
-        ws[f"D{r}"] = f"=INDEX('Pool Points'!$E:$E,MATCH(B{r},'Pool Points'!$A:$A,0))"
+        ws[f"D{r}"] = f"=_xlfn.XLOOKUP(B{r},'Pool Points'!$A:$A,'Pool Points'!$E:$E)"
         ws[f"E{r}"], ws[f"F{r}"], ws[f"G{r}"] = row.size_tier, row.delivery_days, row.pallet_max
         ws[f"H{r}"] = row.open_date.to_pydatetime() if pd.notna(row.open_date) else plan["plan_week"].to_pydatetime()
         ws[f"H{r}"].number_format = DATE
