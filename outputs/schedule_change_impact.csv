@@ -1,0 +1,6 @@
+change_id,change_type,backlog_change,deliveries_change,trailers_change,cost_change,notes
+CHG-001,CANCEL_POOL_POINT_DAY,89,-10,-4,-6927.75,All Tue deliveries at PP03 cancelled; pallets roll to each store's next delivery.
+CHG-002,CANCEL_STORE_DELIVERY,7,-1,-1,-842.5,S1096 skips Thu; its pallets roll to the next delivery.
+CHG-003,PALLET_MAX_CHANGE,12,0,0,-114.0,S1001 pallet max 11 to 7 per delivery.
+CHG-004,NEW_STORE,6,2,0,475.0,S1137 added to PP04 on Tue/Fri with 26 opening pallets.
+CHG-005,CARRIER_CHANGE,0,0,0,455.0,Lane cost $962 to $998 per trailer; carrier on-time 92.2% vs 95.1% over the last 52 weeks.

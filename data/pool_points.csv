@@ -1,0 +1,9 @@
+pool_point_id,city,state,miles_from_dc,carrier_id,handling_per_pallet,cost_per_stop,winter_exposed,linehaul_cost_per_trailer,contracted_trailers_per_week,trailing_fill_pct
+PP01,Albany,NY,205,CARR-A,9.5,165,True,900.25,15,0.7383
+PP02,Hartford,CT,190,CARR-A,10.25,180,True,854.5,15,0.7916
+PP03,Worcester,MA,265,CARR-B,10.75,195,True,1005.25,18,0.8047
+PP04,Harrisburg,PA,120,CARR-C,8.75,150,False,684.0,15,0.7449
+PP05,Pittsburgh,PA,300,CARR-C,9.25,170,True,1260.0,17,0.7837
+PP06,Baltimore,MD,115,CARR-D,9.75,175,False,599.25,17,0.7689
+PP07,Richmond,VA,255,CARR-D,8.5,155,False,1012.25,13,0.7566
+PP08,Syracuse,NY,250,CARR-B,9.0,160,True,962.5,13,0.7006

@@ -1,0 +1,4 @@
+scenario,deliveries,pallets_delivered,backlog_pallets,stores_with_backlog,trailers,trailer_fill_pct,linehaul_cost,total_cost,cost_per_pallet
+1. Baseline plan,325,2700,457,133,131,0.7927187316500294,120055.25,200907.0,74.41
+2. With change requests,316,2612,571,134,126,0.7973137973137974,115890.0,193952.75,74.25
+3. With peak mitigation,450,3172,11,1,142,0.8591549295774648,130254.0,236468.5,74.55

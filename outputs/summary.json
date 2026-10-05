@@ -1,0 +1,100 @@
+{
+  "as_of_week": "2026-07-25",
+  "plan_week": "2026-12-05",
+  "pool_points": 8,
+  "stores_open_at_as_of": 134,
+  "stores_opening_in_forecast": 2,
+  "history_weeks": 208,
+  "store_week_rows": 27188,
+  "backtest": [
+    {
+      "model": "Holt-Winters",
+      "pool_point_wape": 0.0354,
+      "network_wape": 0.0233,
+      "bias": 0.0098
+    },
+    {
+      "model": "Seasonal naive",
+      "pool_point_wape": 0.0419,
+      "network_wape": 0.0236,
+      "bias": 0.0103
+    },
+    {
+      "model": "Seasonal index",
+      "pool_point_wape": 0.0419,
+      "network_wape": 0.0316,
+      "bias": 0.0275
+    }
+  ],
+  "backtest_windows": [
+    [
+      "2025-08-02",
+      "2026-01-24"
+    ],
+    [
+      "2026-01-31",
+      "2026-07-25"
+    ]
+  ],
+  "champion": "Holt-Winters",
+  "forecast_peak_pallets": 3152,
+  "forecast_avg_weekly_pallets": 2226,
+  "lane_weeks_over_capacity": 53,
+  "lane_weeks_total": 208,
+  "max_extra_trailers_one_carrier_week": 12,
+  "total_surge_trailers_high_case": 196,
+  "peak_week": [
+    {
+      "scenario": "1. Baseline plan",
+      "deliveries": 325,
+      "pallets_delivered": 2700,
+      "backlog_pallets": 457,
+      "stores_with_backlog": 133,
+      "trailers": 131,
+      "trailer_fill_pct": 0.7927,
+      "linehaul_cost": 120055.25,
+      "total_cost": 200907.0,
+      "cost_per_pallet": 74.41
+    },
+    {
+      "scenario": "2. With change requests",
+      "deliveries": 316,
+      "pallets_delivered": 2612,
+      "backlog_pallets": 571,
+      "stores_with_backlog": 134,
+      "trailers": 126,
+      "trailer_fill_pct": 0.7973,
+      "linehaul_cost": 115890.0,
+      "total_cost": 193952.75,
+      "cost_per_pallet": 74.25
+    },
+    {
+      "scenario": "3. With peak mitigation",
+      "deliveries": 450,
+      "pallets_delivered": 3172,
+      "backlog_pallets": 11,
+      "stores_with_backlog": 1,
+      "trailers": 142,
+      "trailer_fill_pct": 0.8592,
+      "linehaul_cost": 130254.0,
+      "total_cost": 236468.5,
+      "cost_per_pallet": 74.55
+    }
+  ],
+  "backlog_cleared_pct": 0.9807,
+  "mitigation_cost_change_pct": 0.2192,
+  "stores_mitigated": 134,
+  "pool_points_below_on_time": [
+    "PP03",
+    "PP07",
+    "PP08"
+  ],
+  "pool_points_below_fill": [
+    "PP01",
+    "PP04",
+    "PP08"
+  ],
+  "pool_points_high_cost": [
+    "PP05"
+  ]
+}

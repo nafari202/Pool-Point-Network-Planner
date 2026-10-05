@@ -1,0 +1,5 @@
+carrier_id,carrier_name,fixed_charge,rate_per_mile,base_on_time
+CARR-A,Carrier A,275,3.05,0.965
+CARR-B,Carrier B,250,2.85,0.925
+CARR-C,Carrier C,300,3.2,0.975
+CARR-D,Carrier D,260,2.95,0.95

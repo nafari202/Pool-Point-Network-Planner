@@ -1,0 +1,6 @@
+change_id,change_type,pool_point_id,store_id,day,delivery_days,old_value,new_value,opening_pallets,reason,requested_by
+CHG-001,CANCEL_POOL_POINT_DAY,PP03,,Tue,,,,,Winter storm closes the Worcester pool point for Tuesday,Pool point PP03
+CHG-002,CANCEL_STORE_DELIVERY,PP06,S1096,Thu,,,,,Store running a physical inventory count on Thursday,Store operations
+CHG-003,PALLET_MAX_CHANGE,PP01,S1001,,,11,7,,Backroom at capacity; store asks for smaller drops,Store operations
+CHG-004,NEW_STORE,PP04,S1137,,Tue/Fri,,10,26.0,New store added to the network with grand-opening fill,Store planning
+CHG-005,CARRIER_CHANGE,PP08,,,,CARR-B,CARR-D,,Syracuse lane awarded to a new carrier,Transportation procurement
